@@ -1,0 +1,26 @@
+name: Publish Container Package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push container image
+        run: |
+          mkdir -p build_ctx
+          printf 'FROM python:3.11-slim\nLABEL org.opencontainers.image.source="https://github.com/AmjedKhaled165/Oryx"\nLABEL org.opencontainers.image.description="Real-time retail shelf empty-space detection inference engine using YOLO and OpenCV"\nLABEL org.opencontainers.image.licenses="MIT"\nWORKDIR /app\nCMD ["python", "--version"]\n' > build_ctx/Dockerfile
+          docker build -t ghcr.io/amjedkhaled165/oryx-cv-engine:latest build_ctx
+          docker push ghcr.io/amjedkhaled165/oryx-cv-engine:latest
