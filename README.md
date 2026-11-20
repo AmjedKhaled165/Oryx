@@ -1,69 +1,94 @@
-# Oryx J022201
-### Oryx the Stok M8 aims to automate inventory management in retail stores by utilizing computer vision and deep learning techniques to detect empty spaces on store shelves. Traditional manual methods for monitoring shelf stock can be time-consuming and error-prone. By applying YOLOv10, an advanced object detection algorithm, we can revolutionize this process, providing real-time and accurate identification of vacant shelf spaces.
+# Oryx (Stock M8): Real-Time Retail Shelf Empty-Space Detection & Inventory Monitoring
 
-### The key features include automated empty space detection and precise localization. The YOLOv10 model detects and localizes empty spaces on store shelves, eliminating the need for manual monitoring and reducing operational costs. The model operates in real-time, allowing for instantaneous detection and response to changes in shelf stock. YOLOv10 provides high-precision localization of empty spaces, offering valuable insights for optimizing shelf layouts and stock levels.
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Model 
-### Type: YOLOv10 Ultralytics
-### purpose: can detection all empty space in stand in hapermarkt 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Dataset used
-### [Dataset Link](https://drive.google.com/file/d/1NmtMoH3OipUKnSgL8k9nrQPSteMmSXNG/view?usp=drive_link)
+Oryx (Stock M8) is an integrated computer vision and mechatronics system designed to automate inventory auditing in retail hypermarkets. By leveraging YOLOv10 and real-time camera telemetry, the system detects empty shelf space, tracks product availability, and optimizes replenishment schedules without requiring manual store audits.
 
-## preprocessing steps
-### Step1: Labeling
-![image](https://github.com/user-attachments/assets/1557f9f8-6f17-48db-9ec0-eb5cfc240fa8)
-### we Labeling data by  Roboflow Annotate,Once the dataset version is generated, I clicked Export and select the YOLOv10 dataset format.
+---
 
-### Step2: Now that I have the images and annotations added, I generated a new dataset version. I used train-test split, by splitting 70% training, 20% validation and 10% testing. When generating a new version of data, you can elect to add preprocessing and augmentations. This step is completely optional, however, it can allow to significantly improve the robustness of the model.
+## System Architecture
 
-### Step3:The preprocessing includes Resize, which downsizes the image for smaller file sizes and faster training. Auto-Orient discards any orientated images. The augmentation is a crucial process. It helps us create more images of the same dataset by generating augmented version of each images. Firstly, I used 90 Rotate, which adds 90-degree rotations to help the model be insensitive to camera orientations because a picture can be taken vertically and horizontally. And, Exposure includes adding variability to image brightness to help the model be more resilient to lighting and camera settings, because a good quality image isn't always available.
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Model performance
-## Metrics:
-![image](https://github.com/user-attachments/assets/63d1f544-a170-4dcb-8e6f-817694531eae)
+The project integrates three core subsystems:
+1. **Physical Motion Controller (`Oryx_Motor_Control.ino`)**: Arduino firmware driving a motor rail platform to position camera sensors along shelf aisles.
+2. **Dual-Model Detection Pipeline (`Oryx_model`)**:
+   - `Oryx_Space_Final.pt`: Custom-trained YOLOv10 model for empty shelf space detection and bounding box localization.
+   - `Oryx_Product_Final.pt`: Auxiliary YOLOv10 model for individual SKU and product package identification.
+3. **Interactive Telemetry & Voice Assistant (`Oryx_eyse_chatbot`)**: An assistive tracking module utilizing dlib facial landmark tracking and speech interaction.
 
-## F1:
-![image](https://github.com/user-attachments/assets/a1483877-4bd5-4ee8-9743-0e509d6162fb)
+---
 
-## Precision:
-![image](https://github.com/user-attachments/assets/03a04329-2e6c-4a9e-80b5-4e6ee35e9089)
+## Dataset & Annotation
 
-## Recall:
-![image](https://github.com/user-attachments/assets/346791d8-8ca7-40a1-9a1e-6c32805a86d6)
+- **Dataset**: [Oryx Shelf Dataset (Google Drive)](https://drive.google.com/file/d/1NmtMoH3OipUKnSgL8k9nrQPSteMmSXNG/view?usp=drive_link)
+- **Annotation Tool**: Roboflow Annotate (Exported in YOLOv10 format).
 
-## Results:
-![image](https://github.com/user-attachments/assets/8d6a061b-53d6-4cb4-9847-8639aa7e6fea)
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# predict and detect
-![image](https://github.com/user-attachments/assets/e2111e6a-a725-4a33-beb4-35ea83ffab29)
-![image](https://github.com/user-attachments/assets/10a0dd03-ada4-496f-9a78-6f50d48aef3b)
-![image](https://github.com/user-attachments/assets/9500cd7a-ca9b-4194-a02d-21153e8ec537)
-![image](https://github.com/user-attachments/assets/03646dcc-61b3-4f82-81c9-f8cdfaf041b9)
+![Data Annotation](https://github.com/user-attachments/assets/1557f9f8-6f17-48db-9ec0-eb5cfc240fa8)
 
-# How Run Oryx_model
+### Preprocessing & Augmentation
+- **Train/Val/Test Split**: 70% Training, 20% Validation, 10% Testing.
+- **Resize**: Standardized for inference latency and training stability.
+- **Auto-Orient**: Eliminates camera orientation bias.
+- **Augmentation Pipeline**:
+  - 90-degree rotations to accommodate varied camera mounting angles.
+  - Exposure variations to build resilience against retail lighting conditions and reflections.
 
-### open models_run_code.py and run code
-  #### note: must the path for model in divce same the path in code 
-  #### ex:
-  #### in code
-![image](https://github.com/user-attachments/assets/560aa2fa-35a3-4544-b25b-b4c30d80ec8d)
-  #### in divce
-![image](https://github.com/user-attachments/assets/247f57b2-bb36-4003-b667-7e90d6fbed1c)
+---
 
-# How Run Oryx_eyse_chatbot
-### satup dlib
-  #### Go to cmd. The cmd path must be the same path where dlib-20.0.0-cp310-cp310-win_amd64 was downloaded. 
-  #### Enter this code :pip install dlib-20.0.0-cp310-cp310-win_amd64.whl
-  ![image](https://github.com/user-attachments/assets/f4800812-4a9a-4c98-a9ed-dd408d0a9ae0)
-  
-  #### Note: Python version must be 9.10
+## Model Evaluation & Performance
 
-## Downloads Libraries
-    
-    pip install -r requirements.txt
-  
+### Confusion Matrix
+![Confusion Matrix](https://github.com/user-attachments/assets/63d1f544-a170-4dcb-8e6f-817694531eae)
 
-    
+### Metrics: F1-Score, Precision, and Recall Curves
+| Metric | Visualization |
+| --- | --- |
+| **F1-Confidence Curve** | ![F1 Score](https://github.com/user-attachments/assets/a1483877-4bd5-4ee8-9743-0e509d6162fb) |
+| **Precision-Confidence Curve** | ![Precision](https://github.com/user-attachments/assets/03a04329-2e6c-4a9e-80b5-4e6ee35e9089) |
+| **Recall-Confidence Curve** | ![Recall](https://github.com/user-attachments/assets/346791d8-8ca7-40a1-9a1e-6c32805a86d6) |
 
+### Validation Results Summary
+![Results](https://github.com/user-attachments/assets/8d6a061b-53d6-4cb4-9847-8639aa7e6fea)
 
+---
+
+## Inference & Real-Time Detection
+
+The YOLOv10 model identifies vacant slots on shelving units and computes spatial coordinates for inventory alerts.
+
+![Detection Sample 1](https://github.com/user-attachments/assets/e2111e6a-a725-4a33-beb4-35ea83ffab29)
+![Detection Sample 2](https://github.com/user-attachments/assets/10a0dd03-ada4-496f-9a78-6f50d48aef3b)
+![Detection Sample 3](https://github.com/user-attachments/assets/9500cd7a-ca9b-4194-a02d-21153e8ec537)
+![Detection Sample 4](https://github.com/user-attachments/assets/03646dcc-61b3-4f82-81c9-f8cdfaf041b9)
+
+---
+
+## Quick Start
+
+### 1. Environment Setup
+```bash
+git clone https://github.com/AmjedKhaled165/Oryx.git
+cd Oryx
+pip install -r requirements.txt
+```
+
+### 2. Optional: dlib Dependency for Voice & Face Module
+If running the eye-tracking assistant subsystem (`Oryx_eyse_chatbot`):
+```bash
+pip install dlib-20.0.0-cp310-cp310-win_amd64.whl
+```
+*(Recommended environment: Python 3.10 64-bit on Windows)*
+
+### 3. Running Detection Pipeline
+Navigate to `Oryx_model` and execute:
+```bash
+cd Oryx_model
+python models_run_code.py
+```
+*Note: Ensure weight paths (`Oryx_Space_Final.pt` / `Oryx_Product_Final.pt`) point to your local directory.*
+
+---
+
+## Tech Stack
+- **Model**: Ultralytics YOLOv10
+- **Computer Vision**: OpenCV, dlib
+- **Embedded / Hardware**: Arduino C++ (`Oryx_Motor_Control.ino`)
+- **Language**: Python 3.10
+- **Data Engineering**: Roboflow
